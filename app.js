@@ -51,8 +51,8 @@ io.on('connection', function(socket){
   socket.on('newTile', function(data){
     io.emit('newTile', data)
   });
-  socket.on('newWord', function(data){
-    io.emit('newWord', data)
+  socket.on('newWord', function(word, tiles){
+    io.emit('newWord', word, tiles)
   });
   socket.on('disconnect', function(){
     console.log('user disconnected');
