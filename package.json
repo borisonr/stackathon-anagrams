@@ -1,0 +1,19 @@
+{
+  "name": "Anagrams",
+  "version": "1.0.0",
+  "description": "Using your smartphone as a remote control for anagrams",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "Rebecca Borison",
+  "license": "MIT",
+  "dependencies": {
+    "angular": "^1.5.7",
+    "express": "^4.11.0",
+    "express-device": "^0.4.2",
+    "nodemon": "^1.9.2",
+    "path": "^0.12.7",
+    "socket.io": "^1.3.2"
+  }
+}
