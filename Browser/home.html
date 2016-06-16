@@ -13,23 +13,27 @@
 	<div ng-controller="boardCtrl" class="container">
     <p>
     <span ng-repeat="tile in tiles">
-	<button class="btn-lg btn-warning">{{ tile.letter }} </button><span> </span></span>
+	<button class="btn-lg btn-warning" preventdefault>{{ tile.letter }} </button><span> </span></span>
     </p>
     
-    <form ng-hide="phone" class="form-inline">
+    <!-- ng-hide="!phone" -->
+    <form  class="form-inline">
     <input type="text" ng-model="myWord" name="myWord">
     <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
     </form>
     <br>
     <p ng-show="error" class="text-danger">{{error}}<p>
     <br>
-    <button type="submit" class="btn btn-success" ng-click="newTile()" ng-hide="!phone">New Tile</button>
+    <!-- ng-hide="!phone" -->
+    <button type="submit" class="btn btn-success" ng-click="newTile()" >New Tile</button>
     
-    <div ng-hide="phone">
-    <h4>My Words:</h4>
+    <div class="row">
+    <div class="col-md-4" ng-hide="phone" ng-repeat="player in players">
+    <h4>Player {{player.number}}'s Words:</h4>
     <ul>
-        <li ng-repeat="word in words">{{ word }} </li>
+        <li ng-repeat="word in player.words">{{ word }} </li>
     </ul>
+    </div>
     </div>
 
     </div>

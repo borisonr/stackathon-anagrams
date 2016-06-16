@@ -2,8 +2,22 @@ var Anagrams = angular.module('Anagrams', []);
 
 Anagrams.controller('boardCtrl', function($scope, $http){
 	var socket = io();
+	
 	$scope.tiles = [{letter: "A"},{letter: "B"}, {letter: "C"}, {letter:"E"}]
-	$scope.words = [];
+	$scope.players = []
+	// $scope.words = [];
+
+	//create multiple players
+	socket.on('newPlayer', function(players){
+		$scope.players = players;
+		$scope.$digest();
+		// socket.emit('otherPlayer', player);
+	})
+
+	// socket.on('otherPlayer', function(player){
+	// 	$scope.players.push(player)
+	// 	$scope.$digest();
+	// })
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
@@ -44,24 +58,33 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 				})
 			}
 			$scope.error = null;
-			socket.emit('newWord', $scope.myWord, $scope.tiles);
+			console.log($scope.myWord)
+			socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id);
+			$scope.myWord = "";
 		}
 
 		//if it can't be made from pile
 		else {
 			//determine if it can be made from current words
 			var toSteal;
-			$scope.words.forEach(function(word){
-				var letters = word.toUpperCase().split("");
-				var count = 0;
-				letters.forEach(function(letter){
-					if(usedLetters.includes(letter)) count++;
-				})
-				if (count === letters.length) toSteal = word;
+			var playerToStealFromId;
+			$scope.players.forEach(function(player){
+				player.words.forEach(function(word){
+					var letters = word.toUpperCase().split("");
+					var count = 0;
+					letters.forEach(function(letter){
+						if(usedLetters.includes(letter)) count++;
+					})
+					if (count === letters.length) {
+						toSteal = word;
+						playerToStealFromId = player.socketId;
+					}
+					})
 			})
 
 			//if it can't be made from current words, it is officially not a valid word
 			if(!toSteal){
+				$scope.myWord = "";
 				$scope.error = "I'm sorry, that word cannot be created from the available letters"
 			}
 			// now check to see if it can be made from the current words combined with the letters in the pile
@@ -78,9 +101,12 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 						$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
 					}
 				})
+				//if the tiles aren't there
 				if(usedLetters.length) $scope.error = "I'm sorry, that word cannot be created from the available letters";
+				//if you can steal the word!
 				else {
-					socket.emit('stealWord', $scope.myWord, $scope.tiles, toSteal)
+					socket.emit('stealWord', $scope.myWord, $scope.tiles, toSteal, playerToStealFromId, socket.id);
+					$scope.myWord = "";
 				}
 			}
 		
@@ -91,15 +117,14 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 		}
 	}
 
-	socket.on('newWord', function(word, tiles){
-		$scope.words.push(word)
+	socket.on('newWord', function(tiles, players){
+		$scope.players = players;
 		$scope.tiles = tiles;
 		$scope.$digest()
 	})
 
-	socket.on('stealWord', function(newWord, tiles, wordToRemove){
-		$scope.words.splice($scope.words.indexOf(wordToRemove), 1);
-		$scope.words.push(newWord);
+	socket.on('stealWord', function(players, tiles){
+		$scope.players = players;
 		$scope.tiles = tiles;
 		$scope.$digest()
 	})

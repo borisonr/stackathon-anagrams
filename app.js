@@ -45,17 +45,37 @@ app.get('/api/device', function(req, res, next){
 //     console.log(data);
 //   });
 // });
+var num = 1;
+var players = [];
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+  console.log('a user connected', socket.id);
+  var player = {number: num, words: [], socketId: socket.id}
+  players.push(player)
+  io.emit('newPlayer', players);
+  num++;
+  // socket.on('otherPlayer', function(player){
+  // 	io.emit('otherPlayer', player);
+  // })
   socket.on('newTile', function(data){
     io.emit('newTile', data)
   });
-  socket.on('newWord', function(word, tiles){
-    io.emit('newWord', word, tiles)
+  socket.on('newWord', function(word, tiles, socketId){
+  	players.forEach(function(player){
+  		if(player.socketId === "/#"+socketId) player.words.push(word);
+  	})
+    io.emit('newWord', tiles, players)
   });
-  socket.on('stealWord', function(newWord, tiles, wordToRemove){
-  	io.emit('stealWord', newWord, tiles, wordToRemove)
+  socket.on('stealWord', function(newWord, tiles, wordToRemove, playerToStealFrom, playerWhoIsStealing){
+  	players.forEach(function(player){
+  		if(player.socketId === "/#"+playerWhoIsStealing) player.words.push(newWord);
+  	})
+  	players.forEach(function(player){
+  		if(player.socketId === playerToStealFrom) {
+  			player.words.splice(player.words.indexOf(wordToRemove), 1);
+  		}
+  	})
+  	io.emit('stealWord', players, tiles)
   });
   socket.on('disconnect', function(){
     console.log('user disconnected');
