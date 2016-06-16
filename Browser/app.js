@@ -66,6 +66,25 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 			}
 			// now check to see if it can be made from the current words combined with the letters in the pile
 			else{
+				var letters = toSteal.toUpperCase().split("");
+				letters.forEach(function(letter){
+					usedLetters.splice(usedLetters.indexOf(letter), 1)
+				})
+
+				for(var i = 0; i < usedLetters.length; i++){
+				$scope.tiles.forEach(function(tile){
+					if(tile.letter === usedLetters[i]){
+						usedLetters.splice(usedLetters.indexOf(tile.letter), 1);
+						$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
+					}
+				})
+				if(usedLetters.length) $scope.error = "I'm sorry, that word cannot be created from the available letters";
+				else {
+					socket.emit('stealWord', $scope.myWord, $scope.tiles, toSteal)
+				}
+			}
+		
+			// socket.emit('newWord', $scope.myWord, $scope.tiles);
 
 			}
 
@@ -74,6 +93,13 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 	socket.on('newWord', function(word, tiles){
 		$scope.words.push(word)
+		$scope.tiles = tiles;
+		$scope.$digest()
+	})
+
+	socket.on('stealWord', function(newWord, tiles, wordToRemove){
+		$scope.words.splice($scope.words.indexOf(wordToRemove), 1);
+		$scope.words.push(newWord);
 		$scope.tiles = tiles;
 		$scope.$digest()
 	})

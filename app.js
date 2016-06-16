@@ -54,6 +54,9 @@ io.on('connection', function(socket){
   socket.on('newWord', function(word, tiles){
     io.emit('newWord', word, tiles)
   });
+  socket.on('stealWord', function(newWord, tiles, wordToRemove){
+  	io.emit('stealWord', newWord, tiles, wordToRemove)
+  });
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });

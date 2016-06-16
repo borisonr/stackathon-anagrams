@@ -16,7 +16,7 @@
 	<button class="btn-lg btn-warning">{{ tile.letter }} </button><span> </span></span>
     </p>
     
-    <form ng-hide="!phone" class="form-inline">
+    <form ng-hide="phone" class="form-inline">
     <input type="text" ng-model="myWord" name="myWord">
     <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
     </form>
