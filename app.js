@@ -49,8 +49,10 @@ app.get('/api/device', function(req, res, next){
 io.on('connection', function(socket){
   console.log('a user connected');
   socket.on('newTile', function(data){
-    console.log(data);
     io.emit('newTile', data)
+  });
+  socket.on('newWord', function(data){
+    io.emit('newWord', data)
   });
   socket.on('disconnect', function(){
     console.log('user disconnected');

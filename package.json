@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "angular": "^1.5.7",
+    "bootstrap": "^3.3.6",
     "express": "^4.11.0",
     "express-device": "^0.4.2",
     "nodemon": "^1.9.2",
