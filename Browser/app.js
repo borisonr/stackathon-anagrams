@@ -6,6 +6,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	$scope.tiles = [];
 	$scope.players = [];
 	$scope.currentPlayer;
+	$scope.chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
 
 	//create multiple players
 	socket.on('newPlayer', function(players){
@@ -18,14 +19,16 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
-		var chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
-    	var char = chars[Math.floor(Math.random() * 26)];
+		// if (!$scope.chars) $scope.score();
+    	var char = $scope.chars[Math.floor(Math.random() * 144)];
+    	$scope.chars = $scope.chars.replace(char, "");
     	if (char ==="q") char = "qu";
-		socket.emit('newTile', {letter: char.toUpperCase()});
+		socket.emit('newTile', {letter: char.toUpperCase()}, $scope.chars);
 	}
-	socket.on('newTile', function(data){
+	socket.on('newTile', function(data, chars){
 		if(!$scope.tiles) $scope.tiles = [];
-		$scope.tiles.push(data)
+		$scope.tiles.push(data);
+		$scope.chars = chars;
 		$scope.$digest()
 	})
 

@@ -70,8 +70,8 @@ io.on('connection', function(socket){
 	  num++;
   	}
   })  
-  socket.on('newTile', function(data){
-    io.emit('newTile', data)
+  socket.on('newTile', function(tile, chars){
+    io.emit('newTile', tile, chars)
   });
   socket.on('newWord', function(word, tiles, socketId){
   	players.forEach(function(player){
@@ -85,7 +85,7 @@ io.on('connection', function(socket){
   	})
   	players.forEach(function(player){
   		if(player.socketId === playerToStealFrom) {
-  			player.words.splice(player.words.indexOf(wordToRemove), 1);
+  			player.words.splice(player.words.indexOf(wordToRemove.toLowerCase()), 1);
   		}
   	})
   	io.emit('stealWord', players, tiles)
