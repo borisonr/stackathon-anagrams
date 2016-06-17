@@ -38,8 +38,16 @@ app.get('/', function (req, res) {
 // App Configuration
 
 app.get('/api/device', function(req, res, next){
-	if(req.device.type === "desktop") res.send('desktop');
-	if(req.device.type === "phone") res.send('phone');
+	if(req.device.type === "desktop") {
+		res.send('desktop');
+	}
+	if(req.device.type === "phone") {
+		res.send('phone');
+		  // var player = {number: "Player " + num + "'s", words: [], socketId: req.body.socketId}
+		  // players.push(player)
+		  // io.emit('newPlayer', players);
+		  // num++;
+	}
 })
 
 app.get('/api/checkWord/:word', function(req, res, next){
@@ -47,36 +55,33 @@ app.get('/api/checkWord/:word', function(req, res, next){
 	if(words.check(req.params.word)) res.send('true');
 })
 
-// io.on('connection', function (socket) {
-//   socket.emit('news', { hello: 'world' });
-//   socket.on('my other event', function (data) {
-//     console.log(data);
-//   });
-// });
 var num = 1;
 var players = [];
 
 io.on('connection', function(socket){
   console.log('a user connected', socket.id);
-  var player = {number: num, words: [], socketId: socket.id}
-  players.push(player)
-  io.emit('newPlayer', players);
-  num++;
-  // socket.on('otherPlayer', function(player){
-  // 	io.emit('otherPlayer', player);
-  // })
+  socket.emit('connected')
+  socket.on('device', function(device){
+  	console.log("in device socket?")
+  	if(device === "phone"){
+  	  var player = {number: num, words: [], socketId: socket.id}
+	  players.push(player)
+	  io.emit('newPlayer', players);
+	  num++;
+  	}
+  })  
   socket.on('newTile', function(data){
     io.emit('newTile', data)
   });
   socket.on('newWord', function(word, tiles, socketId){
   	players.forEach(function(player){
-  		if(player.socketId === "/#"+socketId) player.words.push(word);
+  		if(player.socketId === "/#"+socketId) player.words.push(word.toLowerCase());
   	})
     io.emit('newWord', tiles, players)
   });
   socket.on('stealWord', function(newWord, tiles, wordToRemove, playerToStealFrom, playerWhoIsStealing){
   	players.forEach(function(player){
-  		if(player.socketId === "/#"+playerWhoIsStealing) player.words.push(newWord);
+  		if(player.socketId === "/#"+playerWhoIsStealing) player.words.push(newWord.toLowerCase());
   	})
   	players.forEach(function(player){
   		if(player.socketId === playerToStealFrom) {

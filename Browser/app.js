@@ -3,19 +3,24 @@ var Anagrams = angular.module('Anagrams', []);
 Anagrams.controller('boardCtrl', function($scope, $http){
 	var socket = io();
 	
-	$scope.tiles = [{letter: "A"},{letter: "B"}, {letter: "C"}, {letter:"E"}]
-	$scope.players = []
+	$scope.tiles = [];
+	$scope.players = [];
+	$scope.currentPlayer;
 
 	//create multiple players
 	socket.on('newPlayer', function(players){
+		players.forEach(function(player){
+			if(player.socketId === "/#"+socket.id) $scope.currentPlayer = player;
+		})
 		$scope.players = players;
 		$scope.$digest();
 	})
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
-		var chars = "abcdefghijklmnopqurstuvwxyz";
+		var chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
     	var char = chars[Math.floor(Math.random() * 26)];
+    	if (char ==="q") char = "qu";
 		socket.emit('newTile', {letter: char.toUpperCase()});
 	}
 	socket.on('newTile', function(data){
@@ -33,10 +38,12 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	}
 	else {
 		//check if word is in dictionary
-		$http.get('/api/checkWord/'+$scope.myWord)
+		$http.get('/api/checkWord/'+$scope.myWord.toLowerCase())
 			.then(function(response){
 				//if it is in dictionary
 				if(response.data === "true"){
+					console.log($scope.myWord, "myword")
+					console.log(response.data, "response")
 
 					var usedLetters = $scope.myWord.toUpperCase().split("");
 					//determine if the word could be made from pile
@@ -140,10 +147,19 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	})
 
 	$scope.phone = false;
-	$http.get('/api/device')
-	.then(function(device){
-		if(device.data==="phone") $scope.phone = true;
-	})	
+	socket.on('connected', function(){
+		$http.get('/api/device')
+		.then(function(device){
+			if(device.data==="phone") {
+				$scope.phone = true;
+				socket.emit('device', "phone")
+			}
+			else{
+				socket.emit('device', "desktop")
+			}
+		})
+	})
+		
 	
 	
 })
