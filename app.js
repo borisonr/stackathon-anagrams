@@ -9,6 +9,9 @@ var device = require('express-device');
 var path = require('path');
 var rootPath = path.join(__dirname, './');
 
+var checkWord = require('check-word'),
+    words     = checkWord('en');
+
 // This is needed if the app is run on heroku and other cloud providers:
 
 // var port = process.env.PORT || 8080;
@@ -37,6 +40,11 @@ app.get('/', function (req, res) {
 app.get('/api/device', function(req, res, next){
 	if(req.device.type === "desktop") res.send('desktop');
 	if(req.device.type === "phone") res.send('phone');
+})
+
+app.get('/api/checkWord/:word', function(req, res, next){
+	if(!words.check(req.params.word)) res.send('false');
+	if(words.check(req.params.word)) res.send('true');
 })
 
 // io.on('connection', function (socket) {
