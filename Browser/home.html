@@ -21,9 +21,11 @@
     <li>You can also steal a word from another player by adding a letter to the word from the main pile, but you have to change the meaning of the word (just adding an "s" doesn't count)</li>
     </ul>
     <h1 ng-show="gameOver">{{gameOver}}</h1>
+    <button ng-show="gameOver" type="submit" class="btn btn-success" ng-click="newGame()" >New Game!</button>
     </div>
     <h4 ng-hide="phone">There are {{chars.length}} tiles left</h4>
     <button ng-show="!charsLeft && !phone" type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
+    <br>
     <h4 ng-show="phone">You are Player {{currentPlayer.number}}</h4>
     <h4 ng-show="phone">Good luck!</h4>
     <p>

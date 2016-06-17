@@ -102,6 +102,11 @@ io.on('connection', function(socket){
   	console.log(Math.max(...scores))
   	io.emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
   })
+  socket.on('newGame', function(){
+  	players = [];
+  	num = 1;
+  	io.emit('newGame')
+  })
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });

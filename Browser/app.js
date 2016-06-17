@@ -8,7 +8,6 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	$scope.currentPlayer;
 	$scope.chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
 	$scope.charsLeft = true;
-
 	//create multiple players
 	socket.on('newPlayer', function(players){
 		players.forEach(function(player){
@@ -21,14 +20,11 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	//add a new tile to the pile
 	$scope.newTile = function(){
     	var char = $scope.chars[Math.floor(Math.random() * $scope.chars.length)];
-    	if ($scope.chars.length === 0) {
-    		console.log("here");
-    		$scope.charsLeft = false;
-    		$scope.$apply();
-    	}
-		else socket.emit('newTile', char);
+    	if(!char) char = 0;
+		socket.emit('newTile', char);
 	}
 	socket.on('newTile', function(char){
+		if(!$scope.chars || char === 0) $scope.charsLeft = false;
 		var chars = $scope.chars.split("");
     	var count = 0;
     	chars.forEach(function(c){
@@ -37,16 +33,12 @@ Anagrams.controller('boardCtrl', function($scope, $http){
     			count++;
     		}
     	})
+    	if(!chars) $scope.charsLeft = false;
     	$scope.chars = chars.join("");
     	if (char ==="q") char = "qu";
     	if(!$scope.tiles) $scope.tiles = [];
-    	$scope.tiles.push({letter: char.toUpperCase()});
-    	var letters = [];
-		$scope.tiles.forEach(function(tile){
-			letters.push(tile.letter);
-		})
-		$scope.tilesToLetters = letters;
-		$scope.$apply()
+    	if(char) $scope.tiles.push({letter: char.toUpperCase()});
+		$scope.$apply();
 	})
 
 	//submit a word
@@ -210,5 +202,21 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	$scope.score = function(){
 		socket.emit('score');
 	}
-	
+
+	$scope.newGame = function(){
+		console.log('getting newGame from html?')
+		socket.emit('newGame')
+	}
+	socket.on('newGame', function(){
+		console.log('getting newGame on frontend?')
+		$scope.tiles = [];
+		$scope.players = [];
+		$scope.currentPlayer;
+		$scope.chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
+		$scope.charsLeft = true;
+		$scope.gameOver = false;
+		$scope.error = false;
+		$scope.myWord = "";
+		$scope.$apply();
+	})
 })
