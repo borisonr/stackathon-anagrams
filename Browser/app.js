@@ -19,17 +19,24 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
-		// if (!$scope.chars) $scope.score();
+		// if (!$scope.chars) socket.emit('score');
     	var char = $scope.chars[Math.floor(Math.random() * 144)];
-    	$scope.chars = $scope.chars.replace(char, "");
-    	if (char ==="q") char = "qu";
-		socket.emit('newTile', {letter: char.toUpperCase()}, $scope.chars);
+		socket.emit('newTile', char);
 	}
-	socket.on('newTile', function(data, chars){
-		if(!$scope.tiles) $scope.tiles = [];
-		$scope.tiles.push(data);
-		$scope.chars = chars;
-		$scope.$digest()
+	socket.on('newTile', function(char){
+		var chars = $scope.chars.split("");
+    	var count = 0;
+    	chars.forEach(function(c){
+    		if (c === char && count === 0) {
+    			chars.splice(chars.indexOf(c), 1);
+    			count++;
+    		}
+    	})
+    	$scope.chars = chars.join("");
+    	if (char ==="q") char = "qu";
+    	if(!$scope.tiles) $scope.tiles = [];
+    	$scope.tiles.push({letter: char.toUpperCase()});
+		$scope.$apply()
 	})
 
 	//submit a word

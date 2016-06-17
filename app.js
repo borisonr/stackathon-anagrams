@@ -70,8 +70,8 @@ io.on('connection', function(socket){
 	  num++;
   	}
   })  
-  socket.on('newTile', function(tile, chars){
-    io.emit('newTile', tile, chars)
+  socket.on('newTile', function(char){
+    io.emit('newTile', char)
   });
   socket.on('newWord', function(word, tiles, socketId){
   	players.forEach(function(player){
