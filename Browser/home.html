@@ -20,24 +20,26 @@
     <li>Words must be at least 3 letters long and be found in the English dictionary</li>
     <li>You can also steal a word from another player by adding a letter to the word from the main pile, but you have to change the meaning of the word (just adding an "s" doesn't count)</li>
     </ul>
+    <h1 ng-show="gameOver">{{gameOver}}</h1>
     </div>
     <h4 ng-hide="phone">There are {{chars.length}} tiles left</h4>
+    <button ng-show="!charsLeft && !phone" type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
     <h4 ng-show="phone">You are Player {{currentPlayer.number}}</h4>
     <h4 ng-show="phone">Good luck!</h4>
     <p>
     <span ng-hide="phone" ng-repeat="tile in tiles">
 	<button class="btn-lg btn-warning" preventdefault>{{ tile.letter }} </button><span> </span></span>
     </p>
-    
-    <form ng-hide="!phone" class="form-inline">
+    <!-- ng-hide="!phone" -->
+    <form  class="form-inline">
     <input type="text" ng-model="myWord" name="myWord">
     <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
     </form>
     <br>
     <p ng-show="error" class="text-danger">{{error}}<p>
     <br>
-    
-    <button ng-hide="!phone" type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
+    <!-- ng-hide="!phone" -->
+    <button  type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
     
     <div class="row">
     <div class="col-md-4" ng-hide="phone" ng-repeat="player in players">

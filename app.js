@@ -62,7 +62,6 @@ io.on('connection', function(socket){
   console.log('a user connected', socket.id);
   socket.emit('connected')
   socket.on('device', function(device){
-  	console.log("in device socket?")
   	if(device === "phone"){
   	  var player = {number: num, words: [], socketId: socket.id}
 	  players.push(player)
@@ -90,6 +89,19 @@ io.on('connection', function(socket){
   	})
   	io.emit('stealWord', players, tiles)
   });
+  socket.on('score', function(){
+  	var scores = players.map(function(player){
+  		var score = 0;
+  		player.words.forEach(function(word){
+  			word = word.split("")
+  			word.splice(0, 3)
+  			score += word.length + 1;
+  		})
+  		return score;
+  	})
+  	console.log(Math.max(...scores))
+  	io.emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
+  })
   socket.on('disconnect', function(){
     console.log('user disconnected');
   });
