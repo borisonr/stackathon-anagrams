@@ -30,22 +30,22 @@
     <span ng-hide="phone" ng-repeat="tile in tiles">
 	<button class="btn-lg btn-warning" preventdefault>{{ tile.letter }} </button><span> </span></span>
     </p>
-    <!-- ng-hide="!phone" -->
-    <form  class="form-inline">
+    
+    <form ng-hide="!phone" class="form-inline">
     <input type="text" ng-model="myWord" name="myWord">
     <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
     </form>
     <br>
     <p ng-show="error" class="text-danger">{{error}}<p>
     <br>
-    <!-- ng-hide="!phone" -->
-    <button  type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
+   
+    <button ng-hide="!phone" type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
     
     <div class="row">
     <div class="col-md-4" ng-hide="phone" ng-repeat="player in players">
     <h4>Player {{player.number}}'s Words:</h4>
     <ul>
-        <li ng-repeat="word in player.words">{{ word }} </li>
+        <li ng-repeat="word in player.words track by $index">{{ word }} </li>
     </ul>
     </div>
     </div>

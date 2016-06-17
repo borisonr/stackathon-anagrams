@@ -62,7 +62,11 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 			.then(function(response){
 				//if it is in dictionary
 				if(response.data === "true"){
-					var usedLetters = $scope.myWord.toUpperCase().split("");
+					var usedLetters = $scope.myWord.toLowerCase().replace("qu", "q").toUpperCase().split("");
+					usedLetters = usedLetters.map(function(letter){
+						if (letter === "Q") return "QU"
+						else return letter
+					})
 					//determine if the word could be made from pile
 					var stealing = false;
 					var tilesToLettersCopy = [];
@@ -142,7 +146,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 								var letterInCopy = false;
 								tilesCopy.forEach(function(tile){
 								if(tile === usedLetters[i] && !letterInCopy){
-									usedLetters.splice(usedLetters.indexOf(tile.letter), 1);
+									usedLetters.splice(usedLetters.indexOf(tile), 1);
 									tilesCopy.splice(tilesCopy.indexOf(tile), 1);
 									letterInCopy = true;
 								}
@@ -193,7 +197,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 				socket.emit('device', "phone")
 			}
 			else{
-				socket.emit('device', "phone")
+				socket.emit('device', "desktop")
 			}
 		})
 	})
