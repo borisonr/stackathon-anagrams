@@ -26,99 +26,105 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 	//submit a word
 	$scope.newWord = function(){
-	//check if word is in dictionary
-	$http.get('/api/checkWord/'+$scope.myWord)
-		.then(function(response){
-			//if it is in dictionary
-			if(response.data === "true"){
+	//check if word is 3 letters
+	if($scope.myWord.length < 3) {
+		$scope.myWord = "";
+		$scope.error = "I'm sorry, that word is less than three letters";
+	}
+	else {
+		//check if word is in dictionary
+		$http.get('/api/checkWord/'+$scope.myWord)
+			.then(function(response){
+				//if it is in dictionary
+				if(response.data === "true"){
 
-				var usedLetters = $scope.myWord.toUpperCase().split("");
-				//determine if the word could be made from pile
-				var stealing = false;
-				usedLetters.forEach(function(letter){
-					var letterInPile = false;
-					$scope.tiles.forEach(function(tile){
-						if (tile.letter === letter) letterInPile = true;
-					})
-					if(letterInPile === false) {
-						stealing = true;
-					}
-				})
-
-				//if it can be made from pile...
-				if(!stealing){
-					for(var i = 0; i < usedLetters.length; i++){
-						var deleteCount = 0
+					var usedLetters = $scope.myWord.toUpperCase().split("");
+					//determine if the word could be made from pile
+					var stealing = false;
+					usedLetters.forEach(function(letter){
+						var letterInPile = false;
 						$scope.tiles.forEach(function(tile){
-							if(tile.letter === usedLetters[i] && deleteCount === 0){
-								$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
-								deleteCount++;
-							}
+							if (tile.letter === letter) letterInPile = true;
 						})
+						if(letterInPile === false) {
+							stealing = true;
+						}
+					})
+
+					//if it can be made from pile...
+					if(!stealing){
+						for(var i = 0; i < usedLetters.length; i++){
+							var deleteCount = 0
+							$scope.tiles.forEach(function(tile){
+								if(tile.letter === usedLetters[i] && deleteCount === 0){
+									$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
+									deleteCount++;
+								}
+							})
+						}
+						$scope.error = null;
+						socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id);
+						$scope.myWord = "";
 					}
-					$scope.error = null;
-					console.log($scope.myWord)
-					socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id);
+
+					//if it can't be made from pile
+					else {
+						//determine if it can be made from current words
+						var toSteal;
+						var playerToStealFromId;
+						$scope.players.forEach(function(player){
+							player.words.forEach(function(word){
+								var letters = word.toUpperCase().split("");
+								var count = 0;
+								letters.forEach(function(letter){
+									if(usedLetters.includes(letter)) count++;
+								})
+								if (count === letters.length) {
+									toSteal = word;
+									playerToStealFromId = player.socketId;
+								}
+								})
+						})
+
+						//if it can't be made from current words, it is officially not a valid word
+						if(!toSteal){
+							$scope.myWord = "";
+							$scope.error = "I'm sorry, that word cannot be created from the available letters";
+						}
+						// now check to see if it can be made from the current words combined with the letters in the pile
+						else{
+							var letters = toSteal.toUpperCase().split("");
+							letters.forEach(function(letter){
+								usedLetters.splice(usedLetters.indexOf(letter), 1)
+							})
+
+							for(var i = 0; i < usedLetters.length; i++){
+							$scope.tiles.forEach(function(tile){
+								if(tile.letter === usedLetters[i]){
+									usedLetters.splice(usedLetters.indexOf(tile.letter), 1);
+									$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
+								}
+							})
+							//if the tiles aren't there
+							if(usedLetters.length) $scope.error = "I'm sorry, that word cannot be created from the available letters";
+							//if you can steal the word!
+							else {
+								socket.emit('stealWord', $scope.myWord, $scope.tiles, toSteal, playerToStealFromId, socket.id);
+								$scope.myWord = "";
+							}
+						}
+
+						}
+
+					}
+			}
+				//if it isn't in dictionary
+				else {
+					$scope.error = "I'm sorry, that word is not in the English dictionary";
 					$scope.myWord = "";
 				}
-
-				//if it can't be made from pile
-				else {
-					//determine if it can be made from current words
-					var toSteal;
-					var playerToStealFromId;
-					$scope.players.forEach(function(player){
-						player.words.forEach(function(word){
-							var letters = word.toUpperCase().split("");
-							var count = 0;
-							letters.forEach(function(letter){
-								if(usedLetters.includes(letter)) count++;
-							})
-							if (count === letters.length) {
-								toSteal = word;
-								playerToStealFromId = player.socketId;
-							}
-							})
-					})
-
-					//if it can't be made from current words, it is officially not a valid word
-					if(!toSteal){
-						$scope.myWord = "";
-						$scope.error = "I'm sorry, that word cannot be created from the available letters"
-					}
-					// now check to see if it can be made from the current words combined with the letters in the pile
-					else{
-						var letters = toSteal.toUpperCase().split("");
-						letters.forEach(function(letter){
-							usedLetters.splice(usedLetters.indexOf(letter), 1)
-						})
-
-						for(var i = 0; i < usedLetters.length; i++){
-						$scope.tiles.forEach(function(tile){
-							if(tile.letter === usedLetters[i]){
-								usedLetters.splice(usedLetters.indexOf(tile.letter), 1);
-								$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
-							}
-						})
-						//if the tiles aren't there
-						if(usedLetters.length) $scope.error = "I'm sorry, that word cannot be created from the available letters";
-						//if you can steal the word!
-						else {
-							socket.emit('stealWord', $scope.myWord, $scope.tiles, toSteal, playerToStealFromId, socket.id);
-							$scope.myWord = "";
-						}
-					}
-
-					}
-
-				}
+			})
 		}
-			//if it isn't in dictionary
-			else {
-				$scope.error = "I'm sorry, that word is not in the English dictionary";
-				$scope.myWord = "";
-			}
-		})
 	}
 
 	socket.on('newWord', function(tiles, players){
