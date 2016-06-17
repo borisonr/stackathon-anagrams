@@ -14,7 +14,7 @@ var checkWord = require('check-word'),
 
 // This is needed if the app is run on heroku and other cloud providers:
 
-// var port = process.env.PORT || 8080;
+var port = process.env.PORT || 8080;
 
 // Initialize a new socket.io object. It is bound to 
 // the express app, which allows them to coexist.
@@ -108,7 +108,7 @@ io.on('connection', function(socket){
 });
 
 
-http.listen(8080, function(){
+http.listen(port, function(){
   console.log('listening on *:8080');
 });
 
