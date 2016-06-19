@@ -2,11 +2,12 @@ var Anagrams = angular.module('Anagrams', []);
 
 Anagrams.controller('boardCtrl', function($scope, $http){
 	var socket = io();
+
+	socket.emit('joinRoom', window.location.pathname)
 	
 	$scope.tiles = [];
 	$scope.players = [];
 	$scope.currentPlayer;
-	$scope.chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
 	$scope.charsLeft = true;
 	//create multiple players
 	socket.on('newPlayer', function(players){
@@ -19,25 +20,12 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
-    	var char = $scope.chars[Math.floor(Math.random() * $scope.chars.length)];
-    	if(!char) char = 0;
-		socket.emit('newTile', char);
+		socket.emit('newTile');
 	}
-	socket.on('newTile', function(char){
-		if(!$scope.chars || char === 0) $scope.charsLeft = false;
-		var chars = $scope.chars.split("");
-    	var count = 0;
-    	chars.forEach(function(c){
-    		if (c === char && count === 0) {
-    			chars.splice(chars.indexOf(c), 1);
-    			count++;
-    		}
-    	})
-    	if(!chars) $scope.charsLeft = false;
-    	$scope.chars = chars.join("");
-    	if (char ==="q") char = "qu";
+	socket.on('newTile', function(char, charsLeft){
     	if(!$scope.tiles) $scope.tiles = [];
     	if(char) $scope.tiles.push({letter: char.toUpperCase()});
+    	$scope.charsLeft = charsLeft;
 		$scope.$apply();
 	})
 
@@ -91,7 +79,8 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 							})
 						}
 						$scope.error = null;
-						socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id);
+						console.log($scope.myWord, "word", window.location.pathname, "pathname")
+						socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id, window.location.pathname);
 						$scope.myWord = "";
 					}
 
@@ -150,7 +139,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 								tilesCopy = tilesCopy.map(function(letter){
 									return {letter: letter.toUpperCase()}
 								})
-								socket.emit('stealWord', $scope.myWord, tilesCopy, toSteal, playerToStealFromId, socket.id);
+								socket.emit('stealWord', $scope.myWord, tilesCopy, toSteal, playerToStealFromId, socket.id, window.location.pathname);
 								$scope.myWord = "";
 							}
 						}
@@ -169,6 +158,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	}
 
 	socket.on('newWord', function(tiles, players){
+		console.log(players, "players")
 		$scope.players = players;
 		$scope.tiles = tiles;
 		$scope.$digest()

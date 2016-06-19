@@ -31,10 +31,6 @@ app.use(device.capture());
 app.use(express.static(path.join(rootPath, './node_modules')));
 app.use(express.static(path.join(rootPath, './Browser')));
 
-app.get('/', function (req, res) {
-        res.sendFile(path.join(rootPath, '/Browser/home.html'));
-    });
-
 // App Configuration
 
 app.get('/api/device', function(req, res, next){
@@ -43,10 +39,6 @@ app.get('/api/device', function(req, res, next){
 	}
 	if(req.device.type === "phone") {
 		res.send('phone');
-		  // var player = {number: "Player " + num + "'s", words: [], socketId: req.body.socketId}
-		  // players.push(player)
-		  // io.emit('newPlayer', players);
-		  // num++;
 	}
 })
 
@@ -55,42 +47,77 @@ app.get('/api/checkWord/:word', function(req, res, next){
 	if(words.check(req.params.word)) res.send('true');
 })
 
-var num = 1;
-var players = [];
+app.get('/*', function (req, res) {
+        res.sendFile(path.join(rootPath, '/Browser/home.html'));
+    });
+
+var num = {};
+var players = {};
+var chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
+var roomChars = {};
 
 io.on('connection', function(socket){
   console.log('a user connected', socket.id);
-  socket.emit('connected')
+  var roomName;
+  socket.on('joinRoom', function(room){
+  	roomName = room;
+  	if(!players[room]) {
+  		players[room] = [];
+  		num[room] = 1;
+  		roomChars[room] = chars;
+  	}
+  	socket.join(room)
+  	socket.emit('connected')
+  })
   socket.on('device', function(device){
   	if(device === "phone"){
-  	  var player = {number: num, words: [], socketId: socket.id}
-	  players.push(player)
-	  io.emit('newPlayer', players);
-	  num++;
+  	  var player = {number: num[roomName], words: [], socketId: socket.id}
+	  players[roomName].push(player);
+	  console.log(player, "player");
+	  console.log(players, "players");
+	  io.to(roomName).emit('newPlayer', players[roomName]);
+	  num[roomName]++;
   	}
   })  
-  socket.on('newTile', function(char){
-    io.emit('newTile', char)
+  socket.on('newTile', function(){
+  	var charsLeft = true;
+  	var char = roomChars[roomName][Math.floor(Math.random() * roomChars[roomName].length)];
+    if(!roomChars[roomName] || !char) charsLeft = false;
+	var charsArr = roomChars[roomName].split("");
+    var count = 0;
+	charsArr.forEach(function(c){
+		if (c === char && count === 0) {
+			charsArr.splice(charsArr.indexOf(c), 1);
+			count++;
+		}
+	})
+	if(!charsArr) charsLeft = false;
+	roomChars[roomName] = charsArr.join("");
+	if (char ==="q") char = "qu";
+    io.to(roomName).emit('newTile', char, charsLeft)
   });
-  socket.on('newWord', function(word, tiles, socketId){
-  	players.forEach(function(player){
+  socket.on('newWord', function(word, tiles, socketId, room){
+  	console.log(word, "word")
+  	players[room].forEach(function(player){
   		if(player.socketId === "/#"+socketId) player.words.push(word.toLowerCase());
   	})
-    io.emit('newWord', tiles, players)
+  	console.log(players[room], "players")
+    io.to(room).emit('newWord', tiles, players[room])
   });
-  socket.on('stealWord', function(newWord, tiles, wordToRemove, playerToStealFrom, playerWhoIsStealing){
-  	players.forEach(function(player){
+  socket.on('stealWord', function(newWord, tiles, wordToRemove, playerToStealFrom, playerWhoIsStealing, room){
+  	console.log(newWord, "newword")
+  	players[room].forEach(function(player){
   		if(player.socketId === "/#"+playerWhoIsStealing) player.words.push(newWord.toLowerCase());
   	})
-  	players.forEach(function(player){
+  	players[room].forEach(function(player){
   		if(player.socketId === playerToStealFrom) {
   			player.words.splice(player.words.indexOf(wordToRemove.toLowerCase()), 1);
   		}
   	})
-  	io.emit('stealWord', players, tiles)
+  	io.to(room).emit('stealWord', players[room], tiles)
   });
   socket.on('score', function(){
-  	var scores = players.map(function(player){
+  	var scores = players[roomName].map(function(player){
   		var score = 0;
   		player.words.forEach(function(word){
   			word = word.split("")
@@ -100,12 +127,13 @@ io.on('connection', function(socket){
   		return score;
   	})
   	console.log(Math.max(...scores))
-  	io.emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
+  	io.to(roomName).emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
   })
   socket.on('newGame', function(){
-  	players = [];
-  	num = 1;
-  	io.emit('newGame')
+  	players[roomName] = [];
+  	num[roomName] = 1;
+  	roomChars[roomName] = chars;
+  	io.to(roomName).emit('newGame')
   })
   socket.on('disconnect', function(){
     console.log('user disconnected');
