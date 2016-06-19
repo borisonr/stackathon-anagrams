@@ -45,11 +45,12 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 			.then(function(response){
 				//if it is in dictionary
 				if(response.data === "true"){
-					var usedLetters = $scope.myWord.toLowerCase().replace("qu", "q").toUpperCase().split("");
-					usedLetters = usedLetters.map(function(letter){
-						if (letter === "Q") return "QU"
-						else return letter
-					})
+					// /* if you want QU on the same tile */
+					// var usedLetters = $scope.myWord.toLowerCase().replace("qu", "q").toUpperCase().split("");
+					// usedLetters = usedLetters.map(function(letter){
+					// 	if (letter === "Q") return "QU"
+					// 	else return letter
+					// })
 					//determine if the word could be made from pile
 					var stealing = false;
 					var tilesToLettersCopy = [];
@@ -90,6 +91,8 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 					//if it can't be made from pile
 					else {
 						//determine if it can be made from current words
+						console.log("stealing?")
+						console.log("usedLetters?", usedLetters)
 						var toSteal;
 						var playerToStealFromId;
 						$scope.players.forEach(function(player){
@@ -105,8 +108,9 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 									playerToStealFromId = player.socketId;
 								}
 								})
-						})
 
+						})
+						console.log("toSteal?", toSteal)
 						//if it can't be made from current words, it is officially not a valid word
 						if(!toSteal){
 							$scope.myWord = "";
@@ -182,7 +186,7 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 				socket.emit('device', "phone")
 			}
 			else{
-				socket.emit('device', "desktop")
+				socket.emit('device', "phone")
 			}
 		})
 	})

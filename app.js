@@ -47,7 +47,7 @@ app.get('/api/checkWord/:word', function(req, res, next){
 	if(words.check(req.params.word)) res.send('true');
 })
 
-app.get('/*', function (req, res) {
+app.get('/', function (req, res) {
         res.sendFile(path.join(rootPath, '/Browser/home.html'));
     });
 
@@ -95,7 +95,6 @@ io.on('connection', function(socket){
 	})
 	if(!charsArr) charsLeft = false;
 	roomChars[room] = charsArr.join("");
-	if (char ==="q") char = "qu";
 	console.log(tiles[room], "tiles on new tile button");
 	if(!tiles[room]) tiles[room] = [];
     if(char) tiles[room].push(char.toUpperCase());
