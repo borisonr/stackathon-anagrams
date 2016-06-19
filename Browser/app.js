@@ -51,6 +51,7 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 					// 	if (letter === "Q") return "QU"
 					// 	else return letter
 					// })
+					var usedLetters = $scope.myWord.split("");
 					//determine if the word could be made from pile
 					var stealing = false;
 					var tilesToLettersCopy = [];
