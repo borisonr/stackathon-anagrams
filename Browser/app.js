@@ -187,7 +187,7 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 				socket.emit('device', "phone")
 			}
 			else{
-				socket.emit('device', "desktop")
+				socket.emit('device', "phone")
 			}
 		})
 	})

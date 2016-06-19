@@ -15,16 +15,16 @@
 <span ng-hide="phone" ng-repeat="tile in tiles track by $index">
 <button class="btn-lg btn-warning" preventdefault>{{ tile }} </button><span> </span></span>
 </p>
-
-<form ng-hide="!phone" class="form-inline">
+<!-- ng-hide="!phone" -->
+<form  class="form-inline">
 <input type="text" ng-model="myWord" name="myWord" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
 </form>
 <br>
 <p ng-show="error" class="text-danger">{{error}}<p>
 <br>
-
-<button ng-hide="!phone" type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
+<!-- ng-hide="!phone" -->
+<button  type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
 
 <div class="row">
 <div class="col-md-4" ng-hide="phone" ng-repeat="player in players">
