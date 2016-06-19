@@ -15,3 +15,7 @@ button:hover {
 h2 {
 	margin-left: 2%;
 }
+
+.btn-lg {
+	padding: 8px 0px;
+}
