@@ -55,6 +55,7 @@ var num = {};
 var players = {};
 var chars = "aaaaaaaaaaaaabbbcccddddddeeeeeeeeeeeeeeeeeefffgggghhhiiiiiiiiiiiijjkklllllmmmnnnnnnnnooooooooooopppqqrrrrrrrrrsssssstttttttttuuuuuuvvvwwwxxyyyzz";
 var roomChars = {};
+var tiles = {};
 
 io.on('connection', function(socket){
   console.log('a user connected', socket.id);
@@ -65,6 +66,7 @@ io.on('connection', function(socket){
   		players[room] = [];
   		num[room] = 1;
   		roomChars[room] = chars;
+  		tiles[room] = [];
   	}
   	socket.join(room)
   	socket.emit('connected')
@@ -73,17 +75,17 @@ io.on('connection', function(socket){
   	if(device === "phone"){
   	  var player = {number: num[roomName], words: [], socketId: socket.id}
 	  players[roomName].push(player);
-	  console.log(player, "player");
 	  console.log(players, "players");
 	  io.to(roomName).emit('newPlayer', players[roomName]);
 	  num[roomName]++;
   	}
   })  
-  socket.on('newTile', function(){
+  socket.on('newTile', function(room){
+  	console.log("newtile?")
   	var charsLeft = true;
-  	var char = roomChars[roomName][Math.floor(Math.random() * roomChars[roomName].length)];
-    if(!roomChars[roomName] || !char) charsLeft = false;
-	var charsArr = roomChars[roomName].split("");
+  	var char = roomChars[room][Math.floor(Math.random() * roomChars[roomName].length)];
+    if(!roomChars[room] || !char) charsLeft = false;
+	var charsArr = roomChars[room].split("");
     var count = 0;
 	charsArr.forEach(function(c){
 		if (c === char && count === 0) {
@@ -92,20 +94,26 @@ io.on('connection', function(socket){
 		}
 	})
 	if(!charsArr) charsLeft = false;
-	roomChars[roomName] = charsArr.join("");
+	roomChars[room] = charsArr.join("");
 	if (char ==="q") char = "qu";
-    io.to(roomName).emit('newTile', char, charsLeft)
+	console.log(tiles[room], "tiles on new tile button");
+	if(!tiles[room]) tiles[room] = [];
+    if(char) tiles[room].push(char.toUpperCase());
+    io.to(room).emit('newTile', tiles[room], charsLeft, roomChars[room])
   });
-  socket.on('newWord', function(word, tiles, socketId, room){
-  	console.log(word, "word")
+  socket.on('newWord', function(word, myTiles, socketId, room){
+  	console.log(room, "room");
+  	console.log(tiles, "tiles");
+  	tiles[room] = myTiles;
   	players[room].forEach(function(player){
   		if(player.socketId === "/#"+socketId) player.words.push(word.toLowerCase());
   	})
-  	console.log(players[room], "players")
-    io.to(room).emit('newWord', tiles, players[room])
+  	console.log(tiles[room], "tiles in newword button")
+    io.to(room).emit('newWord', tiles[room], players[room])
   });
-  socket.on('stealWord', function(newWord, tiles, wordToRemove, playerToStealFrom, playerWhoIsStealing, room){
-  	console.log(newWord, "newword")
+  socket.on('stealWord', function(newWord, myTiles, wordToRemove, playerToStealFrom, playerWhoIsStealing, room){
+  	console.log(tiles, "tiles")
+  	tiles[room] = myTiles;
   	players[room].forEach(function(player){
   		if(player.socketId === "/#"+playerWhoIsStealing) player.words.push(newWord.toLowerCase());
   	})
@@ -114,10 +122,10 @@ io.on('connection', function(socket){
   			player.words.splice(player.words.indexOf(wordToRemove.toLowerCase()), 1);
   		}
   	})
-  	io.to(room).emit('stealWord', players[room], tiles)
+  	io.to(room).emit('stealWord', players[room], tiles[room])
   });
-  socket.on('score', function(){
-  	var scores = players[roomName].map(function(player){
+  socket.on('score', function(room){
+  	var scores = players[room].map(function(player){
   		var score = 0;
   		player.words.forEach(function(word){
   			word = word.split("")
@@ -127,13 +135,14 @@ io.on('connection', function(socket){
   		return score;
   	})
   	console.log(Math.max(...scores))
-  	io.to(roomName).emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
+  	io.to(room).emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
   })
-  socket.on('newGame', function(){
-  	players[roomName] = [];
-  	num[roomName] = 1;
-  	roomChars[roomName] = chars;
-  	io.to(roomName).emit('newGame')
+  socket.on('newGame', function(room){
+  	players[room] = [];
+  	num[room] = 1;
+  	roomChars[room] = chars;
+  	tiles[room] = [];
+  	io.to(room).emit('newGame')
   })
   socket.on('disconnect', function(){
     console.log('user disconnected');

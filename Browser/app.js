@@ -1,36 +1,39 @@
-var Anagrams = angular.module('Anagrams', []);
+var Anagrams = angular.module('Anagrams', ['ui.router']);
 
-Anagrams.controller('boardCtrl', function($scope, $http){
+Anagrams.controller('boardCtrl', function($scope, $http, $location){
 	var socket = io();
 
-	socket.emit('joinRoom', window.location.pathname)
+	socket.emit('joinRoom', $location.path())
 	
+	$scope.path = $location.path();
 	$scope.tiles = [];
 	$scope.players = [];
 	$scope.currentPlayer;
 	$scope.charsLeft = true;
+	$scope.chars;
 	//create multiple players
 	socket.on('newPlayer', function(players){
+		$scope.players = players;
 		players.forEach(function(player){
 			if(player.socketId === "/#"+socket.id) $scope.currentPlayer = player;
 		})
-		$scope.players = players;
-		$scope.$digest();
+		$scope.$apply();
 	})
 
 	//add a new tile to the pile
 	$scope.newTile = function(){
-		socket.emit('newTile');
+		socket.emit('newTile', $location.path());
 	}
-	socket.on('newTile', function(char, charsLeft){
-    	if(!$scope.tiles) $scope.tiles = [];
-    	if(char) $scope.tiles.push({letter: char.toUpperCase()});
+	socket.on('newTile', function(tiles, charsLeft, characters){
+		$scope.tiles = tiles;
     	$scope.charsLeft = charsLeft;
+    	$scope.chars = characters;
 		$scope.$apply();
 	})
 
 	//submit a word
 	$scope.newWord = function(){
+		console.log($scope.myWord)
 	//check if word is 3 letters
 	if($scope.myWord.length < 3) {
 		$scope.myWord = "";
@@ -51,7 +54,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 					var stealing = false;
 					var tilesToLettersCopy = [];
 					$scope.tiles.forEach(function(tile){
-						tilesToLettersCopy.push(tile.letter)
+						tilesToLettersCopy.push(tile)
 					})
 					usedLetters.forEach(function(letter){
 						var letterInPile = false;
@@ -72,15 +75,15 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 						for(var i = 0; i < usedLetters.length; i++){
 							var deleteCount = 0
 							$scope.tiles.forEach(function(tile){
-								if(tile.letter === usedLetters[i] && deleteCount === 0){
+								if(tile === usedLetters[i] && deleteCount === 0){
 									$scope.tiles.splice($scope.tiles.indexOf(tile), 1);
 									deleteCount++;
 								}
 							})
 						}
 						$scope.error = null;
-						console.log($scope.myWord, "word", window.location.pathname, "pathname")
-						socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id, window.location.pathname);
+						console.log($scope.myWord, "word", $location.path(), "pathname")
+						socket.emit('newWord', $scope.myWord, $scope.tiles, socket.id, $location.path());
 						$scope.myWord = "";
 					}
 
@@ -119,7 +122,7 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 
 							var tilesCopy = [];
 							$scope.tiles.forEach(function(tile){
-								tilesCopy.push(tile.letter)
+								tilesCopy.push(tile)
 							})
 
 							
@@ -137,9 +140,9 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 							//if you can steal the word!
 							else {
 								tilesCopy = tilesCopy.map(function(letter){
-									return {letter: letter.toUpperCase()}
+									return letter.toUpperCase()
 								})
-								socket.emit('stealWord', $scope.myWord, tilesCopy, toSteal, playerToStealFromId, socket.id, window.location.pathname);
+								socket.emit('stealWord', $scope.myWord, tilesCopy, toSteal, playerToStealFromId, socket.id, $location.path());
 								$scope.myWord = "";
 							}
 						}
@@ -190,12 +193,12 @@ Anagrams.controller('boardCtrl', function($scope, $http){
 	})
 
 	$scope.score = function(){
-		socket.emit('score');
+		socket.emit('score', $location.path());
 	}
 
 	$scope.newGame = function(){
 		console.log('getting newGame from html?')
-		socket.emit('newGame')
+		socket.emit('newGame', $location.path())
 	}
 	socket.on('newGame', function(){
 		console.log('getting newGame on frontend?')

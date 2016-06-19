@@ -1,0 +1,9 @@
+<div ng-hide="phone">
+<h2 >Start a new game</h2>
+<form class="form-inline">
+<label for="gameName"> Create a name for your game</label>
+<input type="text" ng-model="gameName" name="gameName">
+<button type="submit" class="btn btn-success" ui-sref="gameState({gameName: gameName})">Go!</button>
+</form>
+</div>
+<h2 ng-show="phone">Open up this site on a desktop to start a new game, or enter in the url for a game that has already been created</h2>
