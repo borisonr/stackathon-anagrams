@@ -1,9 +1,12 @@
 <h4 ng-hide="phone">Invite your friends to join this game by having them open this link on their phone: https://playanagrams.herokuapp.com and type in the name of your game</h3>
 <h1 ng-show="gameOver">{{gameOver}}</h1>
-<button ng-show="gameOver" type="submit" class="btn btn-success" ng-click="newGame()" >New Game!</button>
+<!-- ng-show="gameOver"  -->
+<button type="submit" ng-show="!phone" class="btn btn-success" ng-click="newGame()" >New Game</button>
 </div>
+<!-- !charsLeft &&  -->
+<button ng-show="!phone" type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
+<br>
 <h4 ng-hide="!chars || phone">There are {{chars.length}} tiles left</h4>
-<button ng-show="!charsLeft && !phone" type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
 <br>
 <p></p>
 <h4 ng-show="phone">You are Player {{currentPlayer.number}}</h4>
