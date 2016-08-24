@@ -133,8 +133,8 @@ io.on('connection', function(socket){
   		})
   		return score;
   	})
-  	console.log(Math.max(...scores))
-  	io.to(room).emit('winner', Math.max(...scores), scores.indexOf(Math.max(...scores)) )
+  	console.log(scores, "scores")
+  	io.to(room).emit('winner', scores)
   })
   socket.on('newGame', function(room){
   	players[room] = [];

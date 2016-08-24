@@ -192,8 +192,11 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 		})
 	})
 		
-	socket.on('winner', function(score, winner){
-		$scope.gameOver = "Game over! Congratulations to Player #" + (winner+1) + " who got a score of " + score;
+	socket.on('winner', function(scores){
+		$scope.gameOver = "Game over! ";
+		scores.forEach(function(score, i){
+			$scope.gameOver+="Player #"+(i+1)+"had a score of "+score+"."
+		})
 		$scope.$apply();
 	})
 
