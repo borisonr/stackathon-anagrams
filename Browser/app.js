@@ -178,18 +178,18 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 		$scope.$digest()
 	})
 
-	$scope.phone = false;
+	// $scope.phone = false;
 	socket.on('connected', function(){
-		$http.get('/api/device')
-		.then(function(device){
-			if(device.data==="phone") {
+		// $http.get('/api/device')
+		// .then(function(device){
+			// if(device.data==="phone") {
 				$scope.phone = true;
 				socket.emit('device', "phone")
-			}
-			else{
-				socket.emit('device', "desktop")
-			}
-		})
+			// }
+			// else{
+			// 	socket.emit('device', "desktop")
+			// }
+		// })
 	})
 		
 	socket.on('winner', function(scores){

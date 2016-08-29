@@ -1,22 +1,18 @@
-<h4 ng-hide="phone">Invite your friends to join this game by having them open this link on their phone: https://playanagrams.herokuapp.com and type in the name of your game</h3>
+<h4>Invite your friends to join this game by having them go to https://playanagrams.herokuapp.com and type in the name of your game</h3>
 <h1 ng-show="gameOver">{{gameOver}}</h1>
-<!-- ng-show="gameOver"  -->
-<button type="submit" ng-show="!phone" class="btn btn-success" ng-click="newGame()" >New Game</button>
+<button type="submit" class="btn btn-success" ng-click="newGame()" >New Game</button>
 </div>
-<!-- !charsLeft &&  -->
-<button ng-show="!phone" type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
+<button type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
 <br>
-<h4 ng-hide="!chars || phone">There are {{chars.length}} tiles left</h4>
+<h4>~You are Player {{currentPlayer.number}}~</h4>
 <br>
 <p></p>
-<h4 ng-show="phone">You are Player {{currentPlayer.number}}</h4>
-<h4 ng-show="phone">Good luck!</h4>
 <p>
-<span ng-hide="phone" ng-repeat="tile in tiles track by $index">
+<span ng-repeat="tile in tiles track by $index">
 <button class="btn-lg btn-warning" preventdefault>{{ tile }} </button><span> </span></span>
 </p>
-
-<form ng-hide="!phone" class="form-inline">
+<h4 ng-hide="!chars || phone">There are {{chars.length}} tiles left</h4>
+<form class="form-inline">
 <input type="text" ng-model="myWord" name="myWord" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
 <button type="submit" class="btn btn-success" ng-click="newWord()">Submit word</button>
 </form>
@@ -24,10 +20,10 @@
 <p ng-show="error" class="text-danger">{{error}}<p>
 <br>
 
-<button ng-hide="!phone" type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
+<button type="submit" class="btn btn-success" ng-click="newTile()" >Flip a New Tile</button>
 
 <div class="row">
-<div class="col-md-4" ng-hide="phone" ng-repeat="player in players">
+<div class="col-md-4" ng-repeat="player in players">
 <h4>Player {{player.number}}'s Words:</h4>
 <ul>
     <li ng-repeat="word in player.words track by $index">{{ word }} </li>

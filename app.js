@@ -33,14 +33,14 @@ app.use(express.static(path.join(rootPath, './Browser')));
 
 // App Configuration
 
-app.get('/api/device', function(req, res, next){
-	if(req.device.type === "desktop") {
-		res.send('desktop');
-	}
-	if(req.device.type === "phone") {
-		res.send('phone');
-	}
-})
+// app.get('/api/device', function(req, res, next){
+// 	if(req.device.type === "desktop") {
+// 		res.send('desktop');
+// 	}
+// 	if(req.device.type === "phone") {
+// 		res.send('phone');
+// 	}
+// })
 
 app.get('/api/checkWord/:word', function(req, res, next){
 	if(!words.check(req.params.word)) res.send('false');
@@ -72,13 +72,13 @@ io.on('connection', function(socket){
   	socket.emit('connected')
   })
   socket.on('device', function(device){
-  	if(device === "phone"){
+  	// if(device === "phone"){
   	  var player = {number: num[roomName], words: [], socketId: socket.id}
 	  players[roomName].push(player);
 	  console.log(players, "players");
 	  io.to(roomName).emit('newPlayer', players[roomName]);
 	  num[roomName]++;
-  	}
+  	// }
   })  
   socket.on('newTile', function(room){
   	console.log("newtile?")
@@ -133,7 +133,6 @@ io.on('connection', function(socket){
   		})
   		return score;
   	})
-  	console.log(scores, "scores")
   	io.to(room).emit('winner', scores)
   })
   socket.on('newGame', function(room){
@@ -152,6 +151,3 @@ io.on('connection', function(socket){
 http.listen(port, function(){
   console.log('listening on *:8080');
 });
-
-
-console.log('Your presentation is running on http://localhost:' + 8080);
