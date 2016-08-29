@@ -3,9 +3,6 @@
 <button type="submit" class="btn btn-success" ng-click="newGame()" >New Game</button>
 </div>
 <button type="submit" class="btn btn-success" ng-click="score()" >Please score us, Ms. Computer</button>
-<br>
-<h4>~You are Player {{currentPlayer.number}}~</h4>
-<br>
 <p></p>
 <p>
 <span ng-repeat="tile in tiles track by $index">
@@ -24,7 +21,7 @@
 
 <div class="row">
 <div class="col-md-4" ng-repeat="player in players">
-<h4>Player {{player.number}}'s Words:</h4>
+<h4>{{player.number}} Words:</h4>
 <ul>
     <li ng-repeat="word in player.words track by $index">{{ word }} </li>
 </ul>

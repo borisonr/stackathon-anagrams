@@ -12,35 +12,10 @@ var rootPath = path.join(__dirname, './');
 var checkWord = require('check-word'),
     words     = checkWord('en');
 
-// This is needed if the app is run on heroku and other cloud providers:
-
 var port = process.env.PORT || 8080;
-
-// Initialize a new socket.io object. It is bound to 
-// the express app, which allows them to coexist.
-
-// var io = require('socket.io').listen(app.listen(port));
-
-// detect device
-
-app.use(device.capture());
-
-// Make the files in the public folder available to the world
-// app.use(express.static(__dirname + '/public'));
 
 app.use(express.static(path.join(rootPath, './node_modules')));
 app.use(express.static(path.join(rootPath, './Browser')));
-
-// App Configuration
-
-// app.get('/api/device', function(req, res, next){
-// 	if(req.device.type === "desktop") {
-// 		res.send('desktop');
-// 	}
-// 	if(req.device.type === "phone") {
-// 		res.send('phone');
-// 	}
-// })
 
 app.get('/api/checkWord/:word', function(req, res, next){
 	if(!words.check(req.params.word)) res.send('false');
@@ -61,7 +36,7 @@ io.on('connection', function(socket){
   console.log('a user connected', socket.id);
   var roomName;
   socket.on('joinRoom', function(room){
-  	roomName = room;
+    roomName = room;
   	if(!players[room]) {
   		players[room] = [];
   		num[room] = 1;
@@ -69,16 +44,14 @@ io.on('connection', function(socket){
   		tiles[room] = [];
   	}
   	socket.join(room)
-  	socket.emit('connected')
-  })
-  socket.on('device', function(device){
-  	// if(device === "phone"){
-  	  var player = {number: num[roomName], words: [], socketId: socket.id}
-	  players[roomName].push(player);
+  // 	io.to(room).emit('connected')
+  // })
+  // socket.on('device', function(device){
+  	var player = {number: num[room], words: [], socketId: socket.id}
+	  players[room].push(player);
 	  console.log(players, "players");
-	  io.to(roomName).emit('newPlayer', players[roomName]);
-	  num[roomName]++;
-  	// }
+	  io.to(room).emit('newPlayer', players[room], tiles[room]);
+	  num[room]++;
   })  
   socket.on('newTile', function(room){
   	console.log("newtile?")

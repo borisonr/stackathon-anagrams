@@ -11,11 +11,14 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 	$scope.currentPlayer;
 	$scope.charsLeft = true;
 	$scope.chars;
+	
 	//create multiple players
-	socket.on('newPlayer', function(players){
+	socket.on('newPlayer', function(players, tiles){
 		$scope.players = players;
+		$scope.tiles = tiles;
 		players.forEach(function(player){
-			if(player.socketId === "/#"+socket.id) $scope.currentPlayer = player;
+			if(player.socketId === "/#"+socket.id) player.number = "My";
+			else player.number = "Player "+player.number+"'s "
 		})
 		$scope.$apply();
 	})
@@ -176,20 +179,6 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 		$scope.players = players;
 		$scope.tiles = tiles;
 		$scope.$digest()
-	})
-
-	// $scope.phone = false;
-	socket.on('connected', function(){
-		// $http.get('/api/device')
-		// .then(function(device){
-			// if(device.data==="phone") {
-				$scope.phone = true;
-				socket.emit('device', "phone")
-			// }
-			// else{
-			// 	socket.emit('device', "desktop")
-			// }
-		// })
 	})
 		
 	socket.on('winner', function(scores){
