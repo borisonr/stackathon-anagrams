@@ -16,11 +16,11 @@
 	<h2>Welcome to Anagrams</h2>
     <div ng-controller="boardCtrl" class="container">
     <div>
-    <h4>Rules of the Game</h4>
-    <ul>
+    <h4>Rules of the Game<a ng-click="show()"> --></a></h4>
+    <ul ng-show="rules">
     <li>Player 1 flips the first tile, and then everyone take turns flipping one at a time</li>
     <li>If you see a word that can be made from the main pile, type it in and submit it</li>
-    <li>Words must be at least 3 letters long and be found in the English dictionary</li>
+    <li>Words must be at least 4 letters long and be found in the English dictionary</li>
     <li>You can also steal a word from another player (or from your own word list) by adding one or more letters from the main pile to that word, but you have to change the meaning of the word (just adding an "s" doesn't count)</li>
     </ul>
     </div>

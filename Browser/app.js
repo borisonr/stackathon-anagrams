@@ -11,7 +11,13 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 	$scope.currentPlayer;
 	$scope.charsLeft = true;
 	$scope.chars;
-	
+
+	//show rules
+	$scope.rules = false;
+	$scope.show = function(){
+		$scope.rules = !$scope.rules;
+	}
+
 	//create multiple players
 	socket.on('newPlayer', function(players, tiles){
 		$scope.players = players;
@@ -38,9 +44,9 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 	$scope.newWord = function(){
 		console.log($scope.myWord)
 	//check if word is 3 letters
-	if($scope.myWord.length < 3) {
+	if($scope.myWord.length < 4) {
 		$scope.myWord = "";
-		$scope.error = "I'm sorry, that word is less than three letters";
+		$scope.error = "I'm sorry, that word is less than four letters";
 	}
 	else {
 		//check if word is in dictionary
@@ -48,12 +54,6 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 			.then(function(response){
 				//if it is in dictionary
 				if(response.data === "true"){
-					// /* if you want QU on the same tile */
-					// var usedLetters = $scope.myWord.toLowerCase().replace("qu", "q").toUpperCase().split("");
-					// usedLetters = usedLetters.map(function(letter){
-					// 	if (letter === "Q") return "QU"
-					// 	else return letter
-					// })
 					var usedLetters = $scope.myWord.toUpperCase().split("");
 					//determine if the word could be made from pile
 					var stealing = false;
@@ -161,7 +161,7 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 			}
 				//if it isn't in dictionary
 				else {
-					$scope.error = "I'm sorry, that word is not in the English dictionary";
+					$scope.error = `I'm sorry, ${$scope.myWord} is not in the English dictionary`;
 					$scope.myWord = "";
 				}
 			})
