@@ -12,7 +12,7 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 	$scope.charsLeft = true;
 	$scope.chars;
 
-	//show rules
+	//toggle rules
 	$scope.rules = false;
 	$scope.show = function(){
 		$scope.rules = !$scope.rules;
@@ -52,8 +52,13 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 		//check if word is in dictionary
 		$http.get('/api/checkWord/'+$scope.myWord.toLowerCase())
 			.then(function(response){
+				//if it isn't in dictionary
+				if(response.data === "false"){
+					$scope.error = `I'm sorry, ${$scope.myWord} is not in the English dictionary`;
+					$scope.myWord = "";
+				}
 				//if it is in dictionary
-				if(response.data === "true"){
+				else {
 					var usedLetters = $scope.myWord.toUpperCase().split("");
 					//determine if the word could be made from pile
 					var stealing = false;
@@ -159,23 +164,16 @@ Anagrams.controller('boardCtrl', function($scope, $http, $location){
 
 					}
 			}
-				//if it isn't in dictionary
-				else {
-					$scope.error = `I'm sorry, ${$scope.myWord} is not in the English dictionary`;
-					$scope.myWord = "";
-				}
+				
 			})
 		}
 	}
 
-	socket.on('newWord', function(tiles, players){
-		console.log(players, "players")
-		$scope.players = players;
-		$scope.tiles = tiles;
-		$scope.$digest()
-	})
-
-	socket.on('stealWord', function(players, tiles){
+	socket.on('newWord', function(players, tiles){
+		players.forEach(function(player){
+			if(player.socketId === "/#"+socket.id) player.number = "My";
+			else player.number = "Player "+player.number+"'s "
+		})
 		$scope.players = players;
 		$scope.tiles = tiles;
 		$scope.$digest()

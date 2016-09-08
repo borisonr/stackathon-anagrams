@@ -81,7 +81,7 @@ io.on('connection', function(socket){
   		if(player.socketId === "/#"+socketId) player.words.push(word.toLowerCase());
   	})
   	console.log(tiles[room], "tiles in newword button")
-    io.to(room).emit('newWord', tiles[room], players[room])
+    io.to(room).emit('newWord', players[room], tiles[room])
   });
   socket.on('stealWord', function(newWord, myTiles, wordToRemove, playerToStealFrom, playerWhoIsStealing, room){
   	console.log(tiles, "tiles")
@@ -94,7 +94,7 @@ io.on('connection', function(socket){
   			player.words.splice(player.words.indexOf(wordToRemove.toLowerCase()), 1);
   		}
   	})
-  	io.to(room).emit('stealWord', players[room], tiles[room])
+  	io.to(room).emit('newWord', players[room], tiles[room])
   });
   socket.on('score', function(room){
   	var scores = players[room].map(function(player){
